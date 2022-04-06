@@ -24,7 +24,7 @@ For my next iteration I think I'll try to make my own style of visualization tha
 - run with yarn start or npm
 
 ```bash
-$ git clone https://github.com/RandolphG/Twitter-Heart
+$ git clone https://github.com/RandolphG/audio-visualizer.git
 $ cd project folder
 $ yarn or npm i
 $ yarn start or npm start
