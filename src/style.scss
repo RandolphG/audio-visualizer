@@ -1,0 +1,81 @@
+html, body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #121318;
+  color: white;
+}
+
+.soundCloud {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #121318;
+  color: white;
+  border: red solid 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  border: red solid 3px;
+  width: 90%;
+  height: 100%;
+
+  canvas {
+    border: red solid 3px;
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+  }
+
+  #message {
+    z-index: 10;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 40px;
+    text-shadow: 1px 1px 5px black;
+    text-align: center;
+  }
+}
+
+.bottom-bar {
+  border: red solid 3px;
+
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0;
+  bottom: 0;
+  height: 40px;
+  width: 100%;
+  padding: 5px;
+  background: rgba(0,0,0,0.7);
+  border-top: 2px solid #ffffff;
+  text-align: center;
+
+  button {
+    height: 34px;
+    padding: 5px 15px;
+    margin: 0 10px;
+    font-size: 20px;
+    line-height: 20px;
+  }
+  audio {
+    height: 40px;
+    margin: 0 10px;
+  }
+}
