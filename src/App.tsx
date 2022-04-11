@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { MouseEvent, useEffect, useRef } from "react";
 import {
   audioTrack,
   BAR_WIDTH,
@@ -24,9 +24,11 @@ const Soundcloud = () => {
   let canvas: HTMLCanvasElement;
   let drawContext: CanvasRenderingContext2D;
   let audio: HTMLAudioElement;
+  let render: any;
 
-  const seekTrack = (evt: any) => {
-    const progress: number = evt.offsetX / evt.target.offsetWidth;
+  const seekTrack = (evt: MouseEvent<HTMLCanvasElement>) => {
+    const progress: number =
+      evt.nativeEvent.offsetX / evt.currentTarget.offsetWidth;
     audio.currentTime = progress * audio.duration;
   };
 
@@ -38,8 +40,6 @@ const Soundcloud = () => {
   const stopDrawing = () => {
     isDrawing = false;
   };
-
-  const render = () => {};
 
   function getLevelsFromSamples(samples: Float32Array) {
     const samplesPerChunk: number = Math.min(
@@ -121,13 +121,16 @@ const Soundcloud = () => {
     /* get drawing ready  ----------------------------------------------------------------------> */
     canvas.width = (BAR_WIDTH + X_SPACING) * outputArrayL.length + X_SPACING;
     canvas.height = Math.floor(canvas.width / 6);
+
     prepareForDrawing(drawContext);
-
-    drawResults(canvas, drawContext, outputArrayL, outputArrayR);
-
-    // canvas.addEventListener("click", seekTrack);
-    // audio.addEventListener("play", startDrawing);
-    // audio.addEventListener("pause", stopDrawing);
+    render = drawResults.bind(
+      Window,
+      canvas,
+      drawContext,
+      outputArrayL,
+      outputArrayR
+    );
+    render();
     audio.addEventListener("seeked", () =>
       drawResults(canvas, drawContext, outputArrayL, outputArrayR)
     );
@@ -139,7 +142,6 @@ const Soundcloud = () => {
   function prepareForDrawing(ctx: CanvasRenderingContext2D) {
     const { height } = canvas;
     const topHeight = 0.7 * (height - 3 * Y_SPACING);
-    // const bottomHeight = 0.3 * (height - 3 * Y_SPACING);
 
     topGradient = ctx.createLinearGradient(
       0,
