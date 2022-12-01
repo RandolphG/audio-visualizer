@@ -1,10 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Soundcloud from "./App";
+import AudioVisualizer from "./AudioVisualizer";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Soundcloud />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+ReactDOM.render(<AudioVisualizer />, document.getElementById("root"));

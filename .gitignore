@@ -1,0 +1,4 @@
+/node_modules/
+.idea/sonarlint/issuestore/index.pb
+.idea/workspace.xml
+yarn.lock

@@ -13,50 +13,68 @@ import {
 } from "./constants";
 import "./style.scss";
 
-const Soundcloud = () => {
+const AudioVisualizer = () => {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
   let audioContext: AudioContext;
-  let topGradient: any;
-  let bottomUnplayedGradient: any;
-  let bottomGradient: any;
+  let topGradient: CanvasGradient;
+  let bottomUnplayedGradient: CanvasGradient;
+  let bottomGradient: CanvasGradient;
   let isDrawing: boolean = false;
   let canvas: HTMLCanvasElement;
   let drawContext: CanvasRenderingContext2D;
   let audio: HTMLAudioElement;
   let render: any;
 
+  /**
+   * seekTrack
+   * @param evt
+   * @return void
+   */
   const seekTrack = (evt: MouseEvent<HTMLCanvasElement>) => {
     const progress: number =
       evt.nativeEvent.offsetX / evt.currentTarget.offsetWidth;
     audio.currentTime = progress * audio.duration;
   };
 
+  /**
+   * startDrawing
+   * @return void
+   */
   const startDrawing = () => {
     isDrawing = true;
     window.requestAnimationFrame(render);
   };
 
+  /**
+   * stopDrawing
+   * @return void
+   */
   const stopDrawing = () => {
     isDrawing = false;
   };
 
+  /**
+   * getLevelsFromSamples
+   * @param samples
+   * @return void
+   */
   function getLevelsFromSamples(samples: Float32Array) {
     const samplesPerChunk: number = Math.min(
       MAX_SAMPLES_PER_CHUNK,
       samples.length / OUTPUT_RESOLUTION
     );
 
-    const stride = Math.floor(
+    const stride: number = Math.floor(
       samples.length / OUTPUT_RESOLUTION / samplesPerChunk
     );
 
     const result: Float32Array = new Float32Array(OUTPUT_RESOLUTION);
 
-    for (let s: number = 0; s < OUTPUT_RESOLUTION; s += 1) {
+    for (let sample: number = 0; sample < OUTPUT_RESOLUTION; sample += 1) {
       const chunkSamples: Float32Array = new Float32Array(samplesPerChunk);
       const offset: number = Math.floor(
-        (s * samples.length) / OUTPUT_RESOLUTION
+        (sample * samples.length) / OUTPUT_RESOLUTION
       );
 
       for (let index: number = 0; index < samplesPerChunk; index += 1) {
@@ -65,18 +83,24 @@ const Soundcloud = () => {
         }
       }
 
-      result[s] = chunkSamples.sort()[Math.floor(0.85 * chunkSamples.length)];
+      result[sample] =
+        chunkSamples.sort()[Math.floor(0.85 * chunkSamples.length)];
     }
+
     return result;
   }
 
+  /**
+   * setupExperiment
+   * @return void
+   */
   function setupExperiment() {
     audio.removeEventListener("play", setupExperiment);
 
     audioContext = new AudioContext();
     const url = audio.getAttribute("src")!;
     /*
-       we have to load the data separately since we can't read raw buffer data from the audio node in advance
+       We have to load the data separately since we can't read raw buffer data from the audio node in advance
        if all we wanted was realtime analysis, the audio element alone would be enough
        fetch audio - probably use fetch to do this instead of XHR
     */
@@ -100,8 +124,13 @@ const Soundcloud = () => {
     document.getElementById("message")!.textContent = "Loading…";
   }
 
+  /**
+   * processAudio
+   * @param buffer
+   * @return void
+   */
   function processAudio(buffer: AudioBuffer) {
-    /* Analyze data */
+    // Analyze data
     console.log("Analyzing buffer");
     document.getElementById("message")!.textContent = "Computing…";
     const startTime = Date.now();
@@ -111,14 +140,14 @@ const Soundcloud = () => {
         ? getLevelsFromSamples(buffer.getChannelData(1))
         : outputArrayL;
 
-    /* done  -----------------------------------------------------------------------------------> */
+    // Done
     console.log(
       "Analysis complete",
       `Finished in ${(Date.now() - startTime) / 1000}s`
     );
     document.getElementById("message")!.remove();
 
-    /* get drawing ready  ----------------------------------------------------------------------> */
+    // Prepare drawing
     canvas.width = (BAR_WIDTH + X_SPACING) * outputArrayL.length + X_SPACING;
     canvas.height = Math.floor(canvas.width / 6);
 
@@ -135,10 +164,15 @@ const Soundcloud = () => {
       drawResults(canvas, drawContext, outputArrayL, outputArrayR)
     );
 
-    /* audio should have already started */
+    // audio should've already started
     startDrawing();
   }
 
+  /**
+   * prepareForDrawing
+   * @param ctx
+   * @return void
+   */
   function prepareForDrawing(ctx: CanvasRenderingContext2D) {
     const { height } = canvas;
     const topHeight = 0.7 * (height - 3 * Y_SPACING);
@@ -149,20 +183,16 @@ const Soundcloud = () => {
       0,
       Y_SPACING
     );
-
     topGradient.addColorStop(0, TOP_COLOR_A);
     topGradient.addColorStop(1, TOP_COLOR_B);
-
     bottomUnplayedGradient = ctx.createLinearGradient(
       0,
       2 * Y_SPACING + topHeight,
       0,
       height - Y_SPACING
     );
-
     bottomUnplayedGradient.addColorStop(0, "rgba(255,255,255,0.4)");
     bottomUnplayedGradient.addColorStop(1, "rgba(255,255,255,0.0)");
-
     bottomGradient = ctx.createLinearGradient(
       0,
       2 * Y_SPACING + topHeight,
@@ -173,6 +203,14 @@ const Soundcloud = () => {
     bottomGradient.addColorStop(1, BOTTOM_COLOR_B);
   }
 
+  /**
+   * drawResults
+   * @param canvas
+   * @param ctx
+   * @param dataL
+   * @param dataR
+   * @return void
+   */
   function drawResults(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
@@ -182,33 +220,33 @@ const Soundcloud = () => {
     const progress = audio.currentTime / audio.duration;
 
     console.log(`PROGRESS ->`, progress);
-    /* initialize -------------------------------------------------------------------------> */
+    // initialize
     const { width, height } = canvas;
     ctx.clearRect(0, 0, width, height);
     ctx.save();
 
-    /* mask top  --------------------------------------------------------------------------> */
+    // mask top
     const topHeight: number = 0.7 * (height - 3 * Y_SPACING);
     const topBars: Path2D = new Path2D();
     dataL.forEach((value, index) => {
       // const x: number = index * (width / dataL.length);
-      const barheight: number = value * topHeight * 4;
+      const barHeight: number = value * topHeight * 4;
       topBars.rect(
         index * (BAR_WIDTH + X_SPACING) + X_SPACING,
-        Y_SPACING + topHeight - barheight,
+        Y_SPACING + topHeight - barHeight,
         BAR_WIDTH,
-        barheight
+        barHeight
       );
     });
 
     ctx.clip(topBars);
-    /* draw top  --------------------------------------------------------------------------> */
+    // draw top
     ctx.fillStyle = "white";
     ctx.fillRect(0, Y_SPACING, width, topHeight);
     ctx.fillStyle = topGradient;
     ctx.fillRect(0, Y_SPACING, progress * width, topHeight);
 
-    /* mask bottom  -----------------------------------------------------------------------> */
+    // mask bottom
     ctx.restore();
     ctx.save();
 
@@ -216,18 +254,18 @@ const Soundcloud = () => {
     const bottomBars: Path2D = new Path2D();
 
     dataR.forEach((value: number, index: number) => {
-      const barheight: number = value * bottomHeight * 4;
+      const barHeight: number = value * bottomHeight * 4;
       bottomBars.rect(
         index * (BAR_WIDTH + X_SPACING) + X_SPACING,
         height - Y_SPACING - bottomHeight,
         BAR_WIDTH,
-        barheight
+        barHeight
       );
     });
 
     ctx.clip(bottomBars);
 
-    /* draw bottom  ------------------------------------------------------------------------> */
+    // draw bottom
     ctx.fillStyle = bottomUnplayedGradient;
     ctx.fillRect(
       progress * width,
@@ -238,7 +276,7 @@ const Soundcloud = () => {
     ctx.fillStyle = bottomGradient;
     ctx.fillRect(0, 2 * Y_SPACING + topHeight, progress * width, bottomHeight);
 
-    /* finalize  ---------------------------------------------------------------------------> */
+    // finalize
     ctx.restore();
 
     if (isDrawing) {
@@ -287,4 +325,4 @@ const Soundcloud = () => {
   );
 };
 
-export default Soundcloud;
+export default AudioVisualizer;
