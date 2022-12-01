@@ -5,11 +5,11 @@ const TOP_COLOR_B: string = "#FFD180";
 const BOTTOM_COLOR_A: string = "rgba(255,23,68,0.4)";
 const BOTTOM_COLOR_B: string = "rgba(255,209,128,0.0)";
 
-const BAR_WIDTH: number = 3;
+const BAR_WIDTH: number = 2;
 const X_SPACING: number = 1;
 const Y_SPACING: number = 3;
 
-const OUTPUT_RESOLUTION = 300;
+const OUTPUT_RESOLUTION = 200;
 const MAX_SAMPLES_PER_CHUNK = 5000;
 
 export {

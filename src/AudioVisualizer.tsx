@@ -1,4 +1,4 @@
-import React, { MouseEvent, useEffect, useRef } from "react";
+import React, { MouseEvent, useEffect } from "react";
 import {
   audioTrack,
   BAR_WIDTH,
@@ -14,8 +14,6 @@ import {
 import "./style.scss";
 
 const AudioVisualizer = () => {
-  const canvasRef = useRef(null);
-  const audioRef = useRef(null);
   let audioContext: AudioContext;
   let topGradient: CanvasGradient;
   let bottomUnplayedGradient: CanvasGradient;
@@ -91,7 +89,11 @@ const AudioVisualizer = () => {
   }
 
   /**
-   * setupExperiment
+   * #setupExperiment
+   * @description  We have to load the data separately since we can't read raw
+   * buffer data from the audio node in advance if all we wanted was realtime analysis,
+   * the audio element alone would be enough
+   * fetch audio - probably use fetch to do this instead of XHR
    * @return void
    */
   function setupExperiment() {
@@ -100,10 +102,7 @@ const AudioVisualizer = () => {
     audioContext = new AudioContext();
     const url = audio.getAttribute("src")!;
     /*
-       We have to load the data separately since we can't read raw buffer data from the audio node in advance
-       if all we wanted was realtime analysis, the audio element alone would be enough
-       fetch audio - probably use fetch to do this instead of XHR
-    */
+     */
     const request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
@@ -125,7 +124,7 @@ const AudioVisualizer = () => {
   }
 
   /**
-   * processAudio
+   * #processAudio
    * @param buffer
    * @return void
    */
@@ -164,12 +163,12 @@ const AudioVisualizer = () => {
       drawResults(canvas, drawContext, outputArrayL, outputArrayR)
     );
 
-    // audio should've already started
+    // Audio should've already started
     startDrawing();
   }
 
   /**
-   * prepareForDrawing
+   * #prepareForDrawing
    * @param ctx
    * @return void
    */
@@ -219,13 +218,12 @@ const AudioVisualizer = () => {
   ) {
     const progress = audio.currentTime / audio.duration;
 
-    console.log(`PROGRESS ->`, progress);
-    // initialize
+    // Initialize
     const { width, height } = canvas;
     ctx.clearRect(0, 0, width, height);
     ctx.save();
 
-    // mask top
+    // Mask top
     const topHeight: number = 0.7 * (height - 3 * Y_SPACING);
     const topBars: Path2D = new Path2D();
     dataL.forEach((value, index) => {
@@ -240,13 +238,13 @@ const AudioVisualizer = () => {
     });
 
     ctx.clip(topBars);
-    // draw top
+    // Draw top
     ctx.fillStyle = "white";
     ctx.fillRect(0, Y_SPACING, width, topHeight);
     ctx.fillStyle = topGradient;
     ctx.fillRect(0, Y_SPACING, progress * width, topHeight);
 
-    // mask bottom
+    // Mask bottom
     ctx.restore();
     ctx.save();
 
@@ -265,7 +263,7 @@ const AudioVisualizer = () => {
 
     ctx.clip(bottomBars);
 
-    // draw bottom
+    // Draw bottom
     ctx.fillStyle = bottomUnplayedGradient;
     ctx.fillRect(
       progress * width,
@@ -276,7 +274,7 @@ const AudioVisualizer = () => {
     ctx.fillStyle = bottomGradient;
     ctx.fillRect(0, 2 * Y_SPACING + topHeight, progress * width, bottomHeight);
 
-    // finalize
+    // Finalize
     ctx.restore();
 
     if (isDrawing) {
@@ -300,26 +298,21 @@ const AudioVisualizer = () => {
   return (
     <div className="soundCloud">
       <div className="container">
-        <canvas
-          ref={canvasRef}
-          id="canvas"
-          width="600"
-          height="200"
-          onClick={seekTrack}
-        />
-        <div id="message">Start audio file below to load visualization</div>
-      </div>
-      <div className="bottom-bar">
-        <audio
-          ref={audioRef}
-          id="audio"
-          crossOrigin="anonymous"
-          src={audioTrack}
-          onPause={stopDrawing}
-          onPlay={startDrawing}
-          onSeeked={render}
-          controls
-        />
+        <canvas id="canvas" width="600" height="200" onClick={seekTrack} />
+        <div id="message">
+          Start audio file below to load visualization
+        </div>{" "}
+        <div className="bottom-bar">
+          <audio
+            id="audio"
+            crossOrigin="anonymous"
+            src={audioTrack}
+            onPause={stopDrawing}
+            onPlay={startDrawing}
+            onSeeked={render}
+            controls
+          />
+        </div>
       </div>
     </div>
   );

@@ -11,31 +11,26 @@ body {
 }
 
 .soundCloud {
-  padding: 0;
+  padding: 1rem;
   margin: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: #121318;
-  color: white;
-  border: red solid 3px;
+  border: green solid 3px;
   display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .container {
-  border: red solid 3px;
-  width: 90%;
+  box-sizing: border-box;
+  border: orange solid 3px;
+  width: 100%;
   height: 100%;
 
   canvas {
     border: red solid 3px;
     cursor: pointer;
-    position: absolute;
-    left: 0;
-    top: 50%;
+    //position: absolute;
     width: 100%;
-    transform: translateY(-50%);
   }
 
   #message {
@@ -52,8 +47,7 @@ body {
 }
 
 .bottom-bar {
-  border: red solid 3px;
-
+  border: lightgreen solid 3px;
   position: fixed;
   display: flex;
   align-items: center;
@@ -63,7 +57,7 @@ body {
   height: 40px;
   width: 100%;
   padding: 5px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   border-top: 2px solid #ffffff;
   text-align: center;
 
@@ -74,6 +68,7 @@ body {
     font-size: 20px;
     line-height: 20px;
   }
+
   audio {
     height: 40px;
     margin: 0 10px;
